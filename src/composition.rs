@@ -90,9 +90,11 @@ impl CompositionDrawingSurfaceInterop for CompositionDrawingSurface {
     }
 }
 
-pub fn draw_into_surface<UpdateObject: Interface, F: FnOnce(&UpdateObject, &POINT)>(surface: &CompositionDrawingSurface, draw: F) -> Result<()> {
+pub fn draw_into_surface<UpdateObject: Interface, F: FnOnce(&UpdateObject, &POINT)>(
+    surface: &CompositionDrawingSurface,
+    draw: F,
+) -> Result<()> {
     let (update_object, update_offset) = surface.begin_draw(None)?;
     draw(&update_object, &update_offset);
     surface.end_draw()
 }
-

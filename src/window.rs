@@ -19,7 +19,7 @@ use windows::{
     UI::Composition::{Compositor, Desktop::DesktopWindowTarget},
 };
 
-use crate::{handle::CheckHandle};
+use crate::handle::CheckHandle;
 
 static REGISTER_WINDOW_CLASS: Once = Once::new();
 const WINDOW_CLASS_NAME: PCWSTR = w!("comptextdemo.Window");
@@ -60,9 +60,7 @@ impl Window {
             (rect.right - rect.left, rect.bottom - rect.top)
         };
 
-        let mut result = Box::new(Self {
-            handle: HWND(0),
-        });
+        let mut result = Box::new(Self { handle: HWND(0) });
 
         let window = unsafe {
             CreateWindowExW(

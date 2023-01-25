@@ -1,6 +1,8 @@
 use windows::core::{Interface, Result};
 use windows::Win32::Foundation::LUID;
-use windows::Win32::Graphics::Direct3D::{D3D_DRIVER_TYPE_UNKNOWN, D3D_DRIVER_TYPE, D3D_DRIVER_TYPE_HARDWARE, D3D_DRIVER_TYPE_WARP};
+use windows::Win32::Graphics::Direct3D::{
+    D3D_DRIVER_TYPE, D3D_DRIVER_TYPE_HARDWARE, D3D_DRIVER_TYPE_UNKNOWN, D3D_DRIVER_TYPE_WARP,
+};
 use windows::Win32::Graphics::Direct3D11::{
     D3D11CreateDevice, ID3D11Device, D3D11_CREATE_DEVICE_FLAG, D3D11_SDK_VERSION,
 };
@@ -9,7 +11,9 @@ use windows::Win32::Graphics::Direct3D11::{
     D3D11_BIND_SHADER_RESOURCE, D3D11_CPU_ACCESS_FLAG, D3D11_CPU_ACCESS_READ,
     D3D11_RESOURCE_MISC_FLAG, D3D11_TEXTURE2D_DESC, D3D11_USAGE_DEFAULT, D3D11_USAGE_STAGING,
 };
-use windows::Win32::Graphics::Dxgi::{CreateDXGIFactory1, IDXGIAdapter1, IDXGIFactory1, DXGI_ERROR_UNSUPPORTED};
+use windows::Win32::Graphics::Dxgi::{
+    CreateDXGIFactory1, IDXGIAdapter1, IDXGIFactory1, DXGI_ERROR_UNSUPPORTED,
+};
 
 fn create_d3d_device_with_type(
     driver_type: D3D_DRIVER_TYPE,
@@ -61,7 +65,7 @@ pub fn copy_texture(
         desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
         desc.CPUAccessFlags = D3D11_CPU_ACCESS_FLAG(0);
     }
-    let new_texture = unsafe { 
+    let new_texture = unsafe {
         let mut texture = None;
         d3d_device.CreateTexture2D(&desc, None, Some(&mut texture))?;
         texture.unwrap()
