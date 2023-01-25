@@ -3,16 +3,13 @@ use std::sync::Once;
 use windows::{
     core::{Interface, Result, HSTRING, PCWSTR},
     w,
-    Foundation::Numerics::Vector2,
-    Graphics::SizeInt32,
     Win32::{
         Foundation::{HINSTANCE, HWND, LPARAM, LRESULT, RECT, WPARAM},
         System::{LibraryLoader::GetModuleHandleW, WinRT::Composition::ICompositorDesktopInterop},
         UI::WindowsAndMessaging::{
-            AdjustWindowRectEx, CreateWindowExW, DefWindowProcW, GetClientRect, GetWindowLongPtrW,
-            LoadCursorW, PostQuitMessage, RegisterClassW, SetWindowLongPtrW, ShowWindow,
-            CREATESTRUCTW, CW_USEDEFAULT, GWLP_USERDATA, HMENU, IDC_ARROW, SW_SHOW, WM_DESTROY,
-            WM_LBUTTONDOWN, WM_MOUSEMOVE, WM_NCCREATE, WM_RBUTTONDOWN, WM_SIZE, WM_SIZING,
+            AdjustWindowRectEx, CreateWindowExW, DefWindowProcW, GetWindowLongPtrW, LoadCursorW,
+            PostQuitMessage, RegisterClassW, SetWindowLongPtrW, ShowWindow, CREATESTRUCTW,
+            CW_USEDEFAULT, GWLP_USERDATA, HMENU, IDC_ARROW, SW_SHOW, WM_DESTROY, WM_NCCREATE,
             WNDCLASSW, WS_EX_NOREDIRECTIONBITMAP, WS_OVERLAPPEDWINDOW,
         },
     },
@@ -84,10 +81,6 @@ impl Window {
         Ok(result)
     }
 
-    pub fn size(&self) -> Result<SizeInt32> {
-        get_window_size(self.handle)
-    }
-
     pub fn handle(&self) -> HWND {
         self.handle
     }
@@ -132,18 +125,5 @@ impl Window {
             }
         }
         DefWindowProcW(window, message, wparam, lparam)
-    }
-}
-
-fn get_window_size(window_handle: HWND) -> Result<SizeInt32> {
-    unsafe {
-        let mut rect = RECT::default();
-        GetClientRect(window_handle, &mut rect).ok()?;
-        let width = rect.right - rect.left;
-        let height = rect.bottom - rect.top;
-        Ok(SizeInt32 {
-            Width: width,
-            Height: height,
-        })
     }
 }

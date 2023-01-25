@@ -1,8 +1,4 @@
 use windows::core::{Interface, Result};
-use windows::Win32::Foundation::E_NOTIMPL;
-use windows::Win32::Graphics::Direct2D::{
-    ID2D1Factory, ID2D1Geometry, D2D1_DEBUG_LEVEL_INFORMATION,
-};
 use windows::Win32::Graphics::{
     Direct2D::{
         D2D1CreateFactory, ID2D1Device, ID2D1Factory1, D2D1_FACTORY_OPTIONS,

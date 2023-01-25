@@ -15,10 +15,9 @@ use interop::{
     create_dispatcher_queue_controller_for_current_thread,
     shutdown_dispatcher_queue_controller_and_wait,
 };
-use numerics::ToVector2;
 use window::Window;
 use windows::{
-    core::{Error, Result, HRESULT, HSTRING},
+    core::{Result, HRESULT, HSTRING},
     w,
     Foundation::Numerics::{Matrix3x2, Vector2, Vector3},
     Graphics::{
@@ -37,7 +36,7 @@ use windows::{
             DirectWrite::{
                 DWriteCreateFactory, IDWriteFactory, IDWriteFontCollection,
                 DWRITE_FACTORY_TYPE_SHARED, DWRITE_FONT_STRETCH_NORMAL, DWRITE_FONT_STYLE_NORMAL,
-                DWRITE_FONT_WEIGHT_NORMAL, DWRITE_OVERHANG_METRICS,
+                DWRITE_FONT_WEIGHT_NORMAL,
             },
         },
         System::WinRT::{RoInitialize, RO_INIT_SINGLETHREADED},
@@ -56,11 +55,6 @@ fn run() -> Result<()> {
     let window_width = 800;
     let window_height = 600;
 
-    let window_size = Vector2 {
-        X: window_width as f32,
-        Y: window_height as f32,
-    };
-
     let compositor = Compositor::new()?;
     let root = compositor.CreateSpriteVisual()?;
     root.SetBrush(&compositor.CreateColorBrushWithColor(Color {
@@ -74,8 +68,6 @@ fn run() -> Result<()> {
     let window = Window::new("Composition Text Demo", window_width, window_height)?;
     let target = window.create_window_target(&compositor, false)?;
     target.SetRoot(&root)?;
-
-    let window_size = window.size()?.to_vector2();
 
     // Init D3D and D2D
     let mut flags = D3D11_CREATE_DEVICE_BGRA_SUPPORT;
@@ -275,8 +267,8 @@ fn run() -> Result<()> {
             DispatchMessageW(&message);
         }
     }
-    shutdown_dispatcher_queue_controller_and_wait(&controller, message.wParam.0 as i32);
-    if (message.wParam.0 != 0) {
+    let code = shutdown_dispatcher_queue_controller_and_wait(&controller, message.wParam.0 as i32)?;
+    if code != 0 {
         Err(HRESULT(message.wParam.0 as i32).into())
     } else {
         Ok(())
