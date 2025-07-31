@@ -1,22 +1,19 @@
 use std::sync::Once;
 
 use windows::{
-    core::{Interface, Result, HSTRING, PCWSTR},
-    w,
+    UI::Composition::{Compositor, Desktop::DesktopWindowTarget},
     Win32::{
         Foundation::{HINSTANCE, HWND, LPARAM, LRESULT, RECT, WPARAM},
         System::{LibraryLoader::GetModuleHandleW, WinRT::Composition::ICompositorDesktopInterop},
         UI::WindowsAndMessaging::{
-            AdjustWindowRectEx, CreateWindowExW, DefWindowProcW, GetWindowLongPtrW, LoadCursorW,
-            PostQuitMessage, RegisterClassW, SetWindowLongPtrW, ShowWindow, CREATESTRUCTW,
-            CW_USEDEFAULT, GWLP_USERDATA, HMENU, IDC_ARROW, SW_SHOW, WM_DESTROY, WM_NCCREATE,
+            AdjustWindowRectEx, CREATESTRUCTW, CW_USEDEFAULT, CreateWindowExW, DefWindowProcW,
+            GWLP_USERDATA, GetWindowLongPtrW, IDC_ARROW, LoadCursorW, PostQuitMessage,
+            RegisterClassW, SW_SHOW, SetWindowLongPtrW, ShowWindow, WM_DESTROY, WM_NCCREATE,
             WNDCLASSW, WS_EX_NOREDIRECTIONBITMAP, WS_OVERLAPPEDWINDOW,
         },
     },
-    UI::Composition::{Compositor, Desktop::DesktopWindowTarget},
+    core::{HSTRING, Interface, PCWSTR, Result, w},
 };
-
-use crate::handle::CheckHandle;
 
 static REGISTER_WINDOW_CLASS: Once = Once::new();
 const WINDOW_CLASS_NAME: PCWSTR = w!("comptextdemo.Window");
@@ -27,10 +24,10 @@ pub struct Window {
 
 impl Window {
     pub fn new(title: &str, width: u32, height: u32) -> Result<Box<Self>> {
-        let instance = unsafe { GetModuleHandleW(None)? };
+        let instance = HINSTANCE(unsafe { GetModuleHandleW(None)? }.0);
         REGISTER_WINDOW_CLASS.call_once(|| {
             let class = WNDCLASSW {
-                hCursor: unsafe { LoadCursorW(HINSTANCE(0), IDC_ARROW).ok().unwrap() },
+                hCursor: unsafe { LoadCursorW(None, IDC_ARROW).ok().unwrap() },
                 hInstance: instance,
                 lpszClassName: WINDOW_CLASS_NAME.into(),
                 lpfnWndProc: Some(Self::wnd_proc),
@@ -52,12 +49,14 @@ impl Window {
                 bottom: height as i32,
             };
             unsafe {
-                AdjustWindowRectEx(&mut rect, window_style, false, window_ex_style).ok()?;
+                AdjustWindowRectEx(&mut rect, window_style, false, window_ex_style)?;
             }
             (rect.right - rect.left, rect.bottom - rect.top)
         };
 
-        let mut result = Box::new(Self { handle: HWND(0) });
+        let mut result = Box::new(Self {
+            handle: HWND(std::ptr::null_mut()),
+        });
 
         let window = unsafe {
             CreateWindowExW(
@@ -69,14 +68,13 @@ impl Window {
                 CW_USEDEFAULT,
                 adjusted_width,
                 adjusted_height,
-                HWND(0),
-                HMENU(0),
-                instance,
+                None,
+                None,
+                Some(instance),
                 Some(result.as_mut() as *mut _ as _),
-            )
-            .ok()?
+            )?
         };
-        unsafe { ShowWindow(window, SW_SHOW) };
+        let _ = unsafe { ShowWindow(window, SW_SHOW) };
 
         Ok(result)
     }
@@ -111,19 +109,21 @@ impl Window {
         wparam: WPARAM,
         lparam: LPARAM,
     ) -> LRESULT {
-        if message == WM_NCCREATE {
-            let cs = lparam.0 as *const CREATESTRUCTW;
-            let this = (*cs).lpCreateParams as *mut Self;
-            (*this).handle = window;
+        unsafe {
+            if message == WM_NCCREATE {
+                let cs = lparam.0 as *const CREATESTRUCTW;
+                let this = (*cs).lpCreateParams as *mut Self;
+                (*this).handle = window;
 
-            SetWindowLongPtrW(window, GWLP_USERDATA, this as _);
-        } else {
-            let this = GetWindowLongPtrW(window, GWLP_USERDATA) as *mut Self;
+                SetWindowLongPtrW(window, GWLP_USERDATA, this as _);
+            } else {
+                let this = GetWindowLongPtrW(window, GWLP_USERDATA) as *mut Self;
 
-            if let Some(this) = this.as_mut() {
-                return this.message_handler(message, wparam, lparam);
+                if let Some(this) = this.as_mut() {
+                    return this.message_handler(message, wparam, lparam);
+                }
             }
+            DefWindowProcW(window, message, wparam, lparam)
         }
-        DefWindowProcW(window, message, wparam, lparam)
     }
 }

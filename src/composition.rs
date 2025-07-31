@@ -1,13 +1,13 @@
 use windows::{
-    core::{IUnknown, Interface, Result},
+    UI::Composition::{
+        CompositionDrawingSurface, CompositionGraphicsDevice, Compositor, ICompositionSurface,
+    },
     Win32::{
         Foundation::{POINT, RECT, SIZE},
         Graphics::{Direct2D::ID2D1Device, Direct3D11::ID3D11Device, Dxgi::IDXGISwapChain1},
         System::WinRT::Composition::{ICompositionDrawingSurfaceInterop, ICompositorInterop},
     },
-    UI::Composition::{
-        CompositionDrawingSurface, CompositionGraphicsDevice, Compositor, ICompositionSurface,
-    },
+    core::{IUnknown, Interface, Result},
 };
 
 pub trait CompositorInterop {

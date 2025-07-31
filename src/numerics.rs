@@ -1,4 +1,5 @@
-use windows::{Foundation::Numerics::Vector2, Graphics::SizeInt32};
+use windows::Graphics::SizeInt32;
+use windows_numerics::Vector2;
 
 pub trait ToVector2 {
     fn to_vector2(&self) -> Vector2;

@@ -1,14 +1,13 @@
 mod composition;
 mod d2d;
 mod d3d;
-mod handle;
 mod interop;
 mod numerics;
 mod window;
 
 use std::time::Duration;
 
-use composition::{draw_into_surface, CompositorInterop};
+use composition::{CompositorInterop, draw_into_surface};
 use d2d::{create_d2d_device, create_d2d_factory};
 use d3d::create_d3d_device;
 use interop::{
@@ -17,36 +16,34 @@ use interop::{
 };
 use window::Window;
 use windows::{
-    core::{Result, HRESULT, HSTRING},
-    w,
-    Foundation::Numerics::{Matrix3x2, Vector2, Vector3},
     Graphics::{
         DirectX::{DirectXAlphaMode, DirectXPixelFormat},
         SizeInt32,
-    },
-    Win32::{
-        Foundation::{HWND, RECT},
-        Graphics::{
-            Direct2D::{
-                Common::{D2D1_COLOR_F, D2D_POINT_2F},
-                ID2D1DeviceContext, D2D1_DEBUG_LEVEL_INFORMATION, D2D1_DRAW_TEXT_OPTIONS_NONE,
-                D2D1_FACTORY_OPTIONS,
-            },
-            Direct3D11::{D3D11_CREATE_DEVICE_BGRA_SUPPORT, D3D11_CREATE_DEVICE_DEBUG},
-            DirectWrite::{
-                DWriteCreateFactory, IDWriteFactory, IDWriteFontCollection,
-                DWRITE_FACTORY_TYPE_SHARED, DWRITE_FONT_STRETCH_NORMAL, DWRITE_FONT_STYLE_NORMAL,
-                DWRITE_FONT_WEIGHT_NORMAL,
-            },
-        },
-        System::WinRT::{RoInitialize, RO_INIT_SINGLETHREADED},
-        UI::WindowsAndMessaging::{DispatchMessageW, GetMessageW, TranslateMessage, MSG},
     },
     UI::{
         Color,
         Composition::{AnimationIterationBehavior, Compositor},
     },
+    Win32::{
+        Foundation::RECT,
+        Graphics::{
+            Direct2D::{
+                Common::D2D1_COLOR_F, D2D1_DEBUG_LEVEL_INFORMATION, D2D1_DRAW_TEXT_OPTIONS_NONE,
+                D2D1_FACTORY_OPTIONS, ID2D1DeviceContext,
+            },
+            Direct3D11::{D3D11_CREATE_DEVICE_BGRA_SUPPORT, D3D11_CREATE_DEVICE_DEBUG},
+            DirectWrite::{
+                DWRITE_FACTORY_TYPE_SHARED, DWRITE_FONT_STRETCH_NORMAL, DWRITE_FONT_STYLE_NORMAL,
+                DWRITE_FONT_WEIGHT_NORMAL, DWriteCreateFactory, IDWriteFactory,
+                IDWriteFontCollection,
+            },
+        },
+        System::WinRT::{RO_INIT_SINGLETHREADED, RoInitialize},
+        UI::WindowsAndMessaging::{DispatchMessageW, GetMessageW, MSG, TranslateMessage},
+    },
+    core::{HRESULT, HSTRING, Result, w},
 };
+use windows_numerics::{Matrix3x2, Vector2, Vector3};
 
 fn run() -> Result<()> {
     unsafe { RoInitialize(RO_INIT_SINGLETHREADED)? };
@@ -170,7 +167,7 @@ fn run() -> Result<()> {
                 a: 0.0,
             }));
             d2d_context.DrawTextLayout(
-                D2D_POINT_2F { x: 0.0, y: 0.0 },
+                Vector2 { X: 0.0, Y: 0.0 },
                 &text_layout,
                 &d2d_brush,
                 D2D1_DRAW_TEXT_OPTIONS_NONE,
@@ -262,8 +259,8 @@ fn run() -> Result<()> {
     // Pump messages and exit
     let mut message = MSG::default();
     unsafe {
-        while GetMessageW(&mut message, HWND(0), 0, 0).into() {
-            TranslateMessage(&message);
+        while GetMessageW(&mut message, None, 0, 0).into() {
+            let _ = TranslateMessage(&message);
             DispatchMessageW(&message);
         }
     }

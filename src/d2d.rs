@@ -1,12 +1,12 @@
-use windows::core::{Interface, Result};
 use windows::Win32::Graphics::{
     Direct2D::{
-        D2D1CreateFactory, ID2D1Device, ID2D1Factory1, D2D1_FACTORY_OPTIONS,
-        D2D1_FACTORY_TYPE_SINGLE_THREADED,
+        D2D1_FACTORY_OPTIONS, D2D1_FACTORY_TYPE_SINGLE_THREADED, D2D1CreateFactory, ID2D1Device,
+        ID2D1Factory1,
     },
     Direct3D11::ID3D11Device,
     Dxgi::IDXGIDevice,
 };
+use windows::core::{Interface, Result};
 
 pub fn create_d2d_factory(options: D2D1_FACTORY_OPTIONS) -> Result<ID2D1Factory1> {
     let result = unsafe { D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, Some(&options))? };

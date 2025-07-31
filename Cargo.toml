@@ -1,12 +1,14 @@
 [package]
 name = "comptextdemo"
 version = "0.1.0"
-edition = "2021"
+edition = "2024"
 
 [dependencies]
+windows-numerics = "0.2.0"
+windows-future = "0.2.1"
 
 [dependencies.windows]
-version = "0.44.0"
+version = "0.61.3"
 features = [
     "Foundation_Collections",
     "Foundation_Numerics",
